@@ -4,7 +4,7 @@ import os.path
 from qdrant_client import QdrantClient, models
 from tqdm import tqdm
 
-from qdrant_demo.config import DATA_DIR, QDRANT_URL, QDRANT_API_KEY, COLLECTION_NAME, TEXT_FIELD_NAME, EMBEDDINGS_MODEL
+from qdrant_demo.config import DATA_DIR, QDRANT_URL, QDRANT_API_KEY, TEXT_FIELD_NAME, EMBEDDINGS_MODEL
 
 
 def upload_embeddings():
@@ -16,7 +16,7 @@ def upload_embeddings():
 
     client.set_model(EMBEDDINGS_MODEL)
 
-    payload_path = os.path.join(DATA_DIR, 'pdc_1.json')
+    payload_path = os.path.join(DATA_DIR, 'nominativi.json')
     payload = []
     documents = []
 
@@ -24,18 +24,11 @@ def upload_embeddings():
     with open(payload_path, encoding='utf-8') as fh:
         data = json.load(fh)
         for obj in data:
-            documents.append(obj['descrizione'])
+            documents.append(obj.pop('descrizione'))
             payload.append(obj)
 
-    # with open(payload_path) as fd:
-    #     for line in fd:
-    #         obj = json.loads(line)
-    #         # Rename fields to unified schema
-    #         documents.append(obj.pop('descrizione'))
-    #         payload.append(obj)
-
     client.recreate_collection(
-        collection_name=COLLECTION_NAME,
+        collection_name='nominativi',
         vectors_config=client.get_fastembed_vector_params(on_disk=True),
         # Quantization is optional, but it can significantly reduce the memory usage
         quantization_config=models.ScalarQuantization(
@@ -50,7 +43,7 @@ def upload_embeddings():
     # Create a payload index for text field.
     # This index enables text search by the TEXT_FIELD_NAME field.
     client.create_payload_index(
-        collection_name=COLLECTION_NAME,
+        collection_name='nominativi',
         field_name=TEXT_FIELD_NAME,
         field_schema=models.TextIndexParams(
             type=models.TextIndexType.TEXT,
@@ -62,7 +55,7 @@ def upload_embeddings():
     )
 
     client.add(
-        collection_name=COLLECTION_NAME,
+        collection_name='nominativi',
         documents=documents,
         metadata=payload,
         ids=tqdm(range(len(payload))),

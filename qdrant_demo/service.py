@@ -19,15 +19,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-neural_searcher = NeuralSearcher(collection_name=COLLECTION_NAME)
-text_searcher = TextSearcher(collection_name=COLLECTION_NAME)
+neural_searcher = NeuralSearcher()
+text_searcher = TextSearcher()
 
 
 @app.get("/api/search")
-async def read_item(q: str, neural: bool = True):
+async def read_item(q: str, collection_name: str, neural: bool = True):
     return {
-        "result": neural_searcher.search(text=q)
-        if neural else text_searcher.search(query=q)
+        "result": neural_searcher.search(text=q, collection_name=collection_name)
+        if neural else text_searcher.search(query=q, collection_name=collection_name)
     }
 
 

@@ -7,9 +7,8 @@ from qdrant_demo.config import QDRANT_URL, QDRANT_API_KEY, TEXT_FIELD_NAME
 
 
 class TextSearcher:
-    def __init__(self, collection_name: str):
+    def __init__(self):
         self.highlight_field = TEXT_FIELD_NAME
-        self.collection_name = collection_name
         self.qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY, prefer_grpc=True)
 
     def highlight(self, record, query) -> dict:
@@ -25,9 +24,9 @@ class TextSearcher:
         record[self.highlight_field] = text
         return record
 
-    def search(self, query, top=5):
+    def search(self, query, collection_name: str, top=5):
         hits = self.qdrant_client.scroll(
-            collection_name=self.collection_name,
+            collection_name=collection_name,
             scroll_filter=Filter(
                 must=[
                     FieldCondition(

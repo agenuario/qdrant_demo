@@ -6,3 +6,5 @@ __pycache__
 .vscode
 .python-version
 .idea/
+.venv/*
+local_cache/*
